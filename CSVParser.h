@@ -1,9 +1,17 @@
 #pragma once
-#include <string>
+
+#ifndef CSV_PARSER_H
+#define CSV_PARSER_H
+
 #include "PointData.h"
+#include <string>
+#include <vector>
+#include <memory> // Include the necessary header for std::unique_ptr
+
 
 class CSVParser {
 public:
-    static PointData* parseLine(const std::string& line);
-    // inne metody, jeśli potrzebne
+    static std::vector<std::unique_ptr<PointData>> parseLine(const std::string& line);
 };
+
+#endif // CSV_PARSER_H

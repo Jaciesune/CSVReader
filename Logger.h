@@ -1,14 +1,26 @@
 #pragma once
+
+#ifndef LOGGER_H
+#define LOGGER_H
+
 #include <string>
 #include <fstream>
+#include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
 class Logger {
 private:
     std::ofstream logFile;
+    std::ofstream errorLogFile;
 
 public:
-    Logger(const std::string& filename);
+    Logger();
+    ~Logger();
 
     void log(const std::string& message);
-    // inne metody, jeśli potrzebne
+    void logError(const std::string& errorMessage);
 };
+
+#endif // LOGGER_H
