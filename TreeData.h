@@ -1,7 +1,6 @@
 //treeData.h
 #pragma once
 #include "pointData.h"
-
 #include <string>
 #include <vector>
 #include <fstream>
@@ -48,3 +47,4 @@ public:
     void loadDataFromFile(const string& filename);
     void printSummary();
 };
+
