@@ -16,6 +16,7 @@ private:
 
     // Metoda pomocnicza do konwersji daty i godziny na znacznik czasu (timestamp)
     time_t convertToTimestamp(const string& datetime);
+    
 
 public:
     // Metody opisane w treSci zadania
@@ -41,7 +42,10 @@ public:
 
     void saveBinaryFile(const string& filename);
     void readBinaryFile(const string& filename);
-
+    // Function to add data to the private vector
+    void addData(const DataPoint& point) {
+        data.push_back(point);
+    }
 
     // Metody do operacji na danych
     void loadDataFromFile(const string& filename);
