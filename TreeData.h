@@ -1,32 +1,50 @@
+//treeData.h
 #pragma once
+#include "pointData.h"
 
-#ifndef TREE_DATA_H
-#define TREE_DATA_H
-
-#include <map>
+#include <string>
 #include <vector>
-#include "PointData.h"
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
-class TreeData {
+using namespace std;
+class DataTree {
 private:
-    struct TreeNode {
-        std::map<int, TreeNode> months;
-        std::map<int, TreeNode> days;
-        std::vector<std::vector<PointData*>> quarters;  
-        std::vector<PointData*> points;
-    };
+    // Wektor do przechowywania danych
+    vector<DataPoint> data;
 
-    TreeNode root;
-
-    void traverseTreeForTimeRange(TreeNode& current, int startYear, int startMonth, int startDay, int startHour,
-                                   int endYear, int endMonth, int endDay, int endHour, std::vector<PointData*>& result);
+    // Metoda pomocnicza do konwersji daty i godziny na znacznik czasu (timestamp)
+    time_t convertToTimestamp(const string& datetime);
 
 public:
-    TreeData();
+    // Metody opisane w treSci zadania
+    void printAutokonsumpcjaSum(const string& start, const string& end);
+    void printEksportSum(const string& start, const string& end);
+    void printImportSum(const string& start, const string& end);
+    void printPoborSum(const string& start, const string& end);
+    void printProdukcjaSum(const string& start, const string& end);
 
-    void insertPoint(PointData* point);
-    std::vector<PointData*> getPointsWithinTimeRange(const std::string& startTime, const std::string& endTime);
-    
+    void printAutokonsumpcjaAverage(const string& start, const string& end);
+    void printEksportAverage(const string& start, const string& end);
+    void printImportAverage(const string& start, const string& end);
+    void printPoborAverage(const string& start, const string& end);
+    void printProdukcjaAverage(const string& start, const string& end);
+
+    void compareAutokonsumpcja(const string& start1, const string& end1, const string& start2, const string& end2);
+    void compareEksport(const string& start1, const string& end1, const string& start2, const string& end2);
+    void compareImport(const string& start1, const string& end1, const string& start2, const string& end2);
+    void comparePobor(const string& start1, const string& end1, const string& start2, const string& end2);
+    void compareProdukcja(const string& start1, const string& end1, const string& start2, const string& end2);
+
+    void searchAndPrint(const double value, const double tolerance, const string& start, const string& end);
+
+    void saveBinaryFile(const string& filename);
+    void readBinaryFile(const string& filename);
+
+
+    // Metody do operacji na danych
+    void loadDataFromFile(const string& filename);
+    void printSummary();
 };
-
-#endif // TREE_DATA_H
