@@ -18,34 +18,69 @@ using namespace std;
 
 
 
-void loadDataFromFile(DataTree& tree, const std::string& filename) {
-    ifstream file(filename);
+// Implementacja metody wczytującej dane z pliku CSV
+void DataTree::loadDataFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+
     if (!file.is_open()) {
-        cout << "Nie udalo sie otworzyc pliku " << filename << endl;
-        return;
+        std::cerr << "Nie można otworzyć pliku: " << filename << std::endl;
+        exit(EXIT_FAILURE);
     }
 
-    string line;
-    getline(file, line); // Pomijamy pierwszy wiersz z nagłówkami kolumn
+    // Ustawienie standardowego separatora dziesiętnego na przecinek
+    std::locale::global(std::locale("C"));
 
-    while (getline(file, line)) {
-        stringstream ss(line);
-        string datetime;
-        double autokonsumpcja, eksport, import, pobor, produkcja;
-        getline(ss, datetime, ',');
-        ss >> autokonsumpcja;
-        ss.ignore(numeric_limits<streamsize>::max(), ',');
-        ss >> eksport;
-        ss.ignore(numeric_limits<streamsize>::max(), ',');
-        ss >> import;
-        ss.ignore(numeric_limits<streamsize>::max(), ',');
-        ss >> pobor;
-        ss.ignore(numeric_limits<streamsize>::max(), ',');
-        ss >> produkcja;
+    std::string line;
+    std::getline(file, line); // Pominięcie pierwszej linii opisowej
 
-        // Use the public function to add data to the 'data' vector of the 'tree' object
-        tree.addData({ datetime, autokonsumpcja, eksport, import, pobor, produkcja });
+    while (std::getline(file, line) && !line.empty()) {
+        std::istringstream ss(line);
+        DataPoint point;
+
+        std::getline(ss, point.time, ',');
+
+        // Pominięcie cudzysłowów dla wartości liczbowych
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+        ss >> point.autokonsumpcja;
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+
+        ss.ignore(); // Pominięcie przecinka
+
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+        ss >> point.eksport;
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+
+        ss.ignore(); // Pominięcie przecinka
+
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+        ss >> point.import;
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+
+        ss.ignore(); // Pominięcie przecinka
+
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+        ss >> point.pobor;
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+
+        ss.ignore(); // Pominięcie przecinka
+
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+        ss >> point.produkcja;
+        ss.ignore(std::numeric_limits<std::streamsize>::max(), '"');
+
+        if (ss.fail()) {
+            // Obsługa błędu konwersji
+            std::cerr << "Błąd konwersji dla linii: " << line << std::endl;
+            continue; // Przejdź do kolejnej iteracji pętli
+        }
+
+        data.push_back(point);
+        std::cout << "Time: " << point.time << ", Autokonsumpcja: " << point.autokonsumpcja
+            << ", Eksport: " << point.eksport << ", Import: " << point.import
+            << ", Pobor: " << point.pobor << ", Produkcja: " << point.produkcja << std::endl;
     }
+
+    file.close();
 }
 
 
@@ -399,18 +434,28 @@ void DataTree::saveBinaryFile(const string& filename) {
     }
 }
 
-void DataTree::readBinaryFile(const string& filename) {
-    ifstream file(filename, ios::binary);
+void DataTree::readBinaryFile(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        cout << "Nie udalo sie otworzyc pliku " << filename << endl;
+        std::cout << "Nie udało się otworzyć pliku " << filename << std::endl;
         return;
     }
 
     DataPoint point;
     while (file.read(reinterpret_cast<char*>(&point), sizeof(point))) {
         data.push_back(point);
+
+        std::cout << "Wczytano dane: Time=" << point.time
+                  << ", Autokonsumpcja=" << point.autokonsumpcja
+                  << ", Eksport=" << point.eksport
+                  << ", Import=" << point.import
+                  << ", Pobór=" << point.pobor
+                  << ", Produkcja=" << point.produkcja << std::endl;
     }
+
+    file.close();
 }
+
 // Funkcja pomocnicza do wyświetlania menu
 
 void printMenu() {
@@ -452,7 +497,7 @@ int main() {
             std::string filename;
             std::cout << "Podaj nazwe pliku: ";
             std::getline(std::cin, filename);
-            loadDataFromFile(tree, filename);  // Call the function on the tree object
+            tree.loadDataFromFile(filename);
             break;
         }
         case 2: {
