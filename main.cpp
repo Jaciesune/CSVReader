@@ -53,7 +53,11 @@ void loadDataFromFile(DataTree& tree, const std::string& filename) {
 time_t DataTree::convertToTimestamp(const string& datetime) {
     tm time = {};
     stringstream ss(datetime);
-    ss >> get_time(&time, "%Y-%m-%d %H:%M:%S");
+    ss >> get_time(&time, "%d.%m.%Y %H:%M");
+    if (ss.fail()) {
+        cerr << "Błąd parsowania daty i godziny: " << datetime << endl;
+        return -1;  // Zwróć wartość oznaczającą błąd (np. -1)
+    }
     return mktime(&time);
 }
 
