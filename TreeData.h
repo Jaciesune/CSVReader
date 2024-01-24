@@ -38,10 +38,11 @@ public:
     void comparePobor(const string& start1, const string& end1, const string& start2, const string& end2);
     void compareProdukcja(const string& start1, const string& end1, const string& start2, const string& end2);
 
-    void searchAndPrint(const double value, const double tolerance, const string& start, const string& end);
+    void searchAndPrint(const double value, const double tolerance, const std::string& start, const std::string& end, const std::string& variable);
 
     void saveBinaryFile(const string& filename);
     void readBinaryFile(const string& filename);
+    void printDataInRange(const std::string& start, const std::string& end);
     // Function to add data to the private vector
     void addData(const DataPoint& point) {
         data.push_back(point);

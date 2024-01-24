@@ -409,18 +409,41 @@ void DataTree::compareProdukcja(const string& start1, const string& end1, const 
     cout << "Srednia produkcji w przedziale czasowym " << start2 << " - " << end2 << " wynosi " << sum2 / count2 << endl;
 }
 
-void DataTree::searchAndPrint(const double value, const double tolerance, const string& start, const string& end) {
+void DataTree::searchAndPrint(const double value, const double tolerance, const std::string& start, const std::string& end, const std::string& variable) {
     time_t startTimestamp = convertToTimestamp(start);
     time_t endTimestamp = convertToTimestamp(end);
 
-    cout << "Wartosc " << value << " w przedziale czasowym " << start << " - " << end << " wystepuje w nastepujacych punktach:" << endl;
+    std::cout << "Wartość " << value << " w przedziale czasowym " << start << " - " << end << " dla zmiennej " << variable << " występuje w następujących punktach:" << std::endl;
+    
     for (const auto& point : data) {
         time_t pointTimestamp = convertToTimestamp(point.time);
-        if (pointTimestamp >= startTimestamp && pointTimestamp <= endTimestamp && point.autokonsumpcja >= value - tolerance && point.autokonsumpcja <= value + tolerance) {
-            cout << point.time << " " << point.autokonsumpcja << endl;
+
+        if (pointTimestamp >= startTimestamp && pointTimestamp <= endTimestamp) {
+            double variableValue;
+
+            // Wybierz odpowiednią zmienną na podstawie parametru 'variable'
+            if (variable == "autokonsumpcja") {
+                variableValue = point.autokonsumpcja;
+            } else if (variable == "eksport") {
+                variableValue = point.eksport;
+            } else if (variable == "import") {
+                variableValue = point.import;
+            } else if (variable == "pobor") {
+                variableValue = point.pobor;
+            } else if (variable == "produkcja") {
+                variableValue = point.produkcja;
+            } else {
+                std::cerr << "Nieznana zmienna: " << variable << std::endl;
+                return;
+            }
+
+            if (variableValue >= value - tolerance && variableValue <= value + tolerance) {
+                std::cout << point.time << " " << variable << ": " << variableValue << std::endl;
+            }
         }
     }
 }
+
 
 void DataTree::saveBinaryFile(const string& filename) {
     ofstream file(filename, ios::binary);
@@ -456,6 +479,26 @@ void DataTree::readBinaryFile(const std::string& filename) {
     file.close();
 }
 
+void DataTree::printDataInRange(const std::string& start, const std::string& end) {
+    time_t startTimestamp = convertToTimestamp(start);
+    time_t endTimestamp = convertToTimestamp(end);
+
+    std::cout << "Dane w przedziale czasowym " << start << " - " << end << ":" << std::endl;
+
+    for (const auto& point : data) {
+        time_t pointTimestamp = convertToTimestamp(point.time);
+
+        if (pointTimestamp >= startTimestamp && pointTimestamp <= endTimestamp) {
+            std::cout << point.time << " Autokonsumpcja: " << point.autokonsumpcja
+                      << " Eksport: " << point.eksport
+                      << " Import: " << point.import
+                      << " Pobor: " << point.pobor
+                      << " Produkcja: " << point.produkcja << std::endl;
+        }
+    }
+}
+
+
 // Funkcja pomocnicza do wyświetlania menu
 
 void printMenu() {
@@ -475,9 +518,10 @@ void printMenu() {
     cout << "14. Porownaj srednia importu w dwoch przedzialach czasowych" << endl;
     cout << "15. Porownaj srednia poboru w dwoch przedzialach czasowych" << endl;
     cout << "16. Porownaj srednia produkcji w dwoch przedzialach czasowych" << endl;
-    cout << "17. Wyszukaj i wyswietl punkty, w ktorych autokonsumpcja jest rowna zadanej wartosci z tolerancja" << endl;
+    cout << "17. Wyszukaj w przedziale danego typu wartości z tolerancją" << endl;
     cout << "18. Zapisz dane do pliku binarnego" << endl;
     cout << "19. Wczytaj dane z pliku binarnego" << endl;
+    cout << "20. Wypisz dane z przedzialu" << endl;
     cout << "0. Wyjscie" << endl;
 }
 
@@ -657,7 +701,7 @@ int main() {
         }
         case 17: {
             double value, tolerance;
-            string start, end;
+            string start, end, variable; // Deklaracja zmiennej 'variable' tutaj
             cout << "Podaj wartosc: ";
             cin >> value;
             cout << "Podaj tolerancje: ";
@@ -667,9 +711,12 @@ int main() {
             getline(cin, start);
             cout << "Podaj koniec przedzialu: ";
             getline(cin, end);
-            tree.searchAndPrint(value, tolerance, start, end);
+            cout << "Podaj typ: ";
+            getline(cin, variable); // Pobierz wartość zmiennej 'variable'
+            tree.searchAndPrint(value, tolerance, start, end, variable);
             break;
         }
+
         case 18: {
             string filename;
             cout << "Podaj nazwe pliku: ";
@@ -684,6 +731,16 @@ int main() {
             tree.readBinaryFile(filename);
             break;
         }
+        case 20: {
+    string start, end;
+    cout << "Podaj poczatek przedzialu: ";
+    getline(cin, start);
+    cout << "Podaj koniec przedzialu: ";
+    getline(cin, end);
+    tree.printDataInRange(start, end);
+    break;
+}
+
         case 0:
             break;
         default:
